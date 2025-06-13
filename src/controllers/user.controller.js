@@ -6,6 +6,7 @@ import userModel from "../models/user.model.js";
 import sendEmail from "../utils/Emailer.js";
 import UserOTPSchema from "../models/userOTP.model.js";
 
+
 // Register User
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, phone, address, password } = req.body;
@@ -235,7 +236,7 @@ const addproducttoCart = asyncHandler(async (req, res) => {
   const updatedUser = await userModel.findByIdAndUpdate(
     user.id,
     {
-      $addToSet: { cart: { productId, quantity } },
+      $addToSet: { cart: { product: productId, quantity } },
     },
     { new: true }
   ).select("-password");
@@ -250,6 +251,84 @@ const addproducttoCart = asyncHandler(async (req, res) => {
   return res.status(200).json({
     success: true,
     message: "Product added to cart successfully",
+    data: updatedUser.cart,
+  });
+});
+
+const removeproductfromCart = asyncHandler(async (req, res) => {
+  const {id} = req.params;
+  const productId = id; // Assuming product ID is passed as a URL parameter
+  if (!productId) {
+    return res.status(400).json({
+      success: false,
+      message: "Please provide product ID",
+    });
+  }
+
+  const user = req.user; // Assuming user is set in the request by authentication middleware
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: "User not authenticated",
+    });
+  }
+
+  const updatedUser = await userModel.findByIdAndUpdate(
+    user.id,
+    {
+      $pull: { cart: { product: productId } },
+    },
+    { new: true }
+  ).select("-password");
+
+  if (!updatedUser) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Product removed from cart successfully",
+    data: updatedUser.cart,
+  });
+})
+
+const updateproductQuantityInCart = asyncHandler(async (req, res) => {
+  const { productId, quantity } = req.body;
+  if (!productId || !quantity) {
+    return res.status(400).json({
+      success: false,
+      message: "Please provide product ID and quantity",
+    });
+  }
+
+  const user = req.user; // Assuming user is set in the request by authentication middleware
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: "User not authenticated",
+    });
+  }
+
+
+  const updatedUser = await userModel.findOneAndUpdate(
+    { _id: user.id, "cart.product": productId },
+    { $set: { "cart.$.quantity": quantity } },
+    { new: true }
+  ).select("-password");
+
+  if (!updatedUser) {
+    return res.status(404).json({
+      success: false,
+      message: "User or product not found in cart",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Product quantity updated in cart successfully",
     data: updatedUser.cart,
   });
 });
@@ -279,4 +358,15 @@ const validateToken = asyncHandler(async (req, res) => {
 
 
 
-export { logoutUser, loginUser, userProfile, registerUser, validateToken, verifyEmailOTP, sendOTPAgain, addproducttoCart };
+export { 
+  logoutUser, 
+  loginUser, 
+  userProfile, 
+  registerUser, 
+  validateToken, 
+  verifyEmailOTP, 
+  sendOTPAgain, 
+  addproducttoCart,
+  removeproductfromCart,
+  updateproductQuantityInCart
+};

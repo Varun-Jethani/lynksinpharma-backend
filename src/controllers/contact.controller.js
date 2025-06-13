@@ -52,12 +52,12 @@ const postContact = asyncHandler(async (req, res) => {
    
 
 
-    res.status(201).json(new ApiResponse("Your message has been sent successfully", contact));
+    res.status(201).json(new ApiResponse(201, "Your message has been sent successfully", contact));
 });
 
 const getContacts = asyncHandler(async (req, res) => {
     const contacts = await ContactModel.find();
-    res.status(200).json(new ApiResponse("Contacts retrieved successfully", contacts));
+    res.status(200).json(new ApiResponse(200, "Contacts retrieved successfully", contacts));
 });
 
 const deleteContact = asyncHandler(async (req, res) => {
@@ -69,7 +69,7 @@ const deleteContact = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Contact not found");
     }
 
-    res.status(200).json(new ApiResponse("Contact deleted successfully", contact));
+    res.status(200).json(new ApiResponse(200, "Contact deleted successfully", contact));
 });
 
 export{
