@@ -17,6 +17,16 @@ const createProduct = asyncHandler(async (req, res) => {
     } else {
         throw new ApiError(400, "Image is required");
     }
+    // Check if product with the same CatelogNumber or CASNumber already exists
+    const existingProduct = await productModel.findOne({
+        $or: [
+            { CatelogNumber: CatelogNumber },
+            { CASNumber: CASNumber }
+        ]
+    });
+    if (existingProduct) {
+        throw new ApiError(400, "Product with the same CatelogNumber or CASNumber already exists");
+    }
     const product = await productModel.create({
         ChemicalName,
         CatelogNumber,
