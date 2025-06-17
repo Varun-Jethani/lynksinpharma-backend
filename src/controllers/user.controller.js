@@ -143,7 +143,8 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new Error("Please fill all the fields");
   }
   
-  const userDoc = await userModel.findOne({ email, phone });
+  const userDoc = await userModel.findOne(
+    email ? { email } : { phone });
   if (userDoc) {
     const pass = bcrypt.compareSync(password, userDoc.password);
     if (pass) {
@@ -356,6 +357,29 @@ const validateToken = asyncHandler(async (req, res) => {
   });
 });
 
+const getCart = asyncHandler(async (req, res) => {
+  const user = req.user; // Assuming user is set in the request by authentication middleware
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: "User not authenticated",
+    });
+  }
+  const userWithCart = await userModel.findById(user.id).select("-password");
+  if (!userWithCart) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+  return res.status(200).json({
+    success: true,
+    message: "Cart retrieved successfully",
+    data: userWithCart.cart,
+  });
+}
+);
+
 
 
 export { 
@@ -368,5 +392,6 @@ export {
   sendOTPAgain, 
   addproducttoCart,
   removeproductfromCart,
-  updateproductQuantityInCart
+  updateproductQuantityInCart,
+  getCart
 };

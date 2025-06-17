@@ -12,7 +12,8 @@ import {
   sendOTPAgain,
   addproducttoCart,
   removeproductfromCart,
-  updateproductQuantityInCart
+  updateproductQuantityInCart,
+  getCart
 } from "../controllers/user.controller.js";
 
 const userRouter = Router();
@@ -23,6 +24,7 @@ userRouter.route("/logout").post(logoutUser);
 userRouter.route("/profile").get(verifyJWT, userProfile);
 userRouter.route("/verifyOTP").post(verifyEmailOTP);
 userRouter.route("/sendOTP").post(sendOTPAgain);
+userRouter.route("/cart").get(verifyJWT, getCart);
 userRouter.route("/cart/remove/:id").delete(verifyJWT, removeproductfromCart);
 userRouter.route("/cart/add").post(verifyJWT, addproducttoCart);
 
