@@ -14,7 +14,7 @@ adminRouter.use(verifyAdminJWT);
 adminRouter.route("/logout").post(logoutAdmin);
 adminRouter.route("/profile").get(getAdminProfile).put(updateAdminProfile);
 adminRouter.route("/validate").get(validateToken);
-adminRouter.route("/stats").get(getStats);
+adminRouter.route("/stats").get(verifyAdminJWT,getStats);
 
 
 export default adminRouter;
