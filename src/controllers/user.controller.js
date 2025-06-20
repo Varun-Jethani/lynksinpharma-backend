@@ -401,10 +401,21 @@ const getCart = asyncHandler(async (req, res) => {
       message: "User not found",
     });
   }
+  if (!userWithCart.cart || userWithCart.cart.length === 0) {
+    return res.status(200).json({
+      success: true,
+      message: "Cart is empty",
+      data: [],
+    });
+  }
+  const cartProducts = await userModel.populate(userWithCart, {
+    path: "cart.product",
+    select: "ChemicalName CASNumber Image MolecularWeight CatelogNumber inStock",
+  });
   return res.status(200).json({
     success: true,
     message: "Cart retrieved successfully",
-    data: userWithCart.cart,
+    data: cartProducts,
   });
 }
 );
