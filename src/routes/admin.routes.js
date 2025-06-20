@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import {
-    registerAdmin, loginAdmin, logoutAdmin, getAdminProfile, updateAdminProfile, validateToken
+    registerAdmin, loginAdmin, logoutAdmin, getAdminProfile, updateAdminProfile, validateToken, getStats
 } from "../controllers/admin.controller.js";
 import { verifyAdminJWT } from "../middlewares/adminAuth.middleware.js";
 
@@ -14,6 +14,7 @@ adminRouter.use(verifyAdminJWT);
 adminRouter.route("/logout").post(logoutAdmin);
 adminRouter.route("/profile").get(getAdminProfile).put(updateAdminProfile);
 adminRouter.route("/validate").get(validateToken);
+adminRouter.route("/stats").get(getStats);
 
 
 export default adminRouter;

@@ -3,6 +3,10 @@ import { ApiResponse} from "../utils/apiresponse.js";
 import adminModel from "../models/admin.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import orderModel from "../models/order.model.js";
+import productModel from "../models/product.model.js";
+import userModel from "../models/user.model.js";
+import ContactModel from "../models/contact.model.js";
 
 const registerAdmin = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
@@ -131,7 +135,22 @@ const validateToken = asyncHandler(async (req, res) => {
 }
 )
 
-export { registerAdmin, loginAdmin, logoutAdmin, getAdminProfile, updateAdminProfile, validateToken };
+const getStats = asyncHandler(async (req, res) => {
+    const totalOrders = await orderModel.countDocuments();
+    const totalProducts = await productModel.countDocuments();
+    const totalUsers = await userModel.countDocuments();
+    const totalContacts = await ContactModel.countDocuments();
+
+    return res.status(200).json(new ApiResponse(true, "Statistics retrieved successfully", {
+        totalOrders,
+        totalProducts,
+        totalUsers,
+        totalContacts
+    }));
+   
+})
+
+export { registerAdmin, loginAdmin, logoutAdmin, getAdminProfile, updateAdminProfile, validateToken, getStats };
 
 
 
