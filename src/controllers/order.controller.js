@@ -5,17 +5,53 @@ import { ApiError } from "../utils/ApiError.js";
 import sendEmail from "../utils/Emailer.js";
 
 const createOrder = asyncHandler(async (req, res) => {
-    const {products} = req.body;
+    const {products, name, Address, phone, Email, CompanyName, Message} = req.body;
     if (!products || products.length === 0) {
         throw new ApiError(400, "Products are required to create an order");
     }
+    if (!name || !Address || !phone || !Email) {
+        throw new ApiError(400, "Name, Address, phone, and Email are required");
+    }
+    // Validate phone number format
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phone)) {
+        throw new ApiError(400, "Invalid phone number format. It should be 10 digits long.");
+    }
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(Email)) {
+        throw new ApiError(400, "Invalid email format");
+    }
+
+    // name and address length validation
+    if (name.length < 2 || name.length > 100) {
+        throw new ApiError(400, "Name must be between 2 and 100 characters");
+    }
+    if (Address.length < 5 || Address.length > 255) {
+        throw new ApiError(400, "Address must be between 5 and 255 characters");
+    }
+    if (CompanyName && (CompanyName.length < 2 || CompanyName.length > 100)) {
+        throw new ApiError(400, "Company Name must be between 2 and 100 characters");
+    }
+    if (Message && (Message.length < 5 || Message.length > 500)) {
+        throw new ApiError(400, "Message must be between 5 and 500 characters");
+    }   
+
+    // Check if user is authenticated
     if (!req.user || !req.user._id) {
         throw new ApiError(401, "User not authenticated");
     }
+
     const order = await OrderModel.create({
         user: req.user._id,
         products,
-        status: "pending"
+        status: "pending",
+        name,
+        Address,
+        phone,
+        Email,
+        CompanyName,
+        Message
     });
     if (!order) {
         throw new ApiError(500, "Failed to create order");
