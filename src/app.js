@@ -26,12 +26,14 @@ import adminRouter from "./routes/admin.routes.js";
 import contactRouter from "./routes/contact.routes.js";
 import productRouter from "./routes/product.route.js";
 import orderRouter from "./routes/order.routes.js";
+import webRouter from "./routes/web.routes.js";
 
 app.use("/user", userRouter);
 app.use("/admin", adminRouter);
 app.use("/contactus", contactRouter);
 app.use("/product", productRouter);
 app.use("/order",orderRouter);
+app.use("/web", webRouter);
 
 app.use("/", (req, res) => {
   res.json("Hell");
