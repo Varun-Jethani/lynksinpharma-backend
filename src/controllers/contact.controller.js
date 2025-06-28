@@ -5,9 +5,9 @@ import { ApiResponse } from "../utils/apiresponse.js";
 import sendEmail from "../utils/Emailer.js";
 
 const postContact = asyncHandler(async (req, res) => {
-    let { name, email, subject, message } = req.body;
+    let { name, email, phone, subject, message } = req.body;
 
-    if (!name || !email || !subject || !message) {
+    if (!name || !email || !phone || !subject || !message) {
         throw new ApiError(400, "All fields are required");
     }
     email = email.trim().toLowerCase();
@@ -18,8 +18,24 @@ const postContact = asyncHandler(async (req, res) => {
     if (subject.length < 2 || subject.length > 200) {
         throw new ApiError(400, "Subject must be between 2 and 200 characters");
     }
+    message = message.trim();
+    if (message.length < 5 || message.length > 1000) {
+        throw new ApiError(400, "Message must be between 5 and 1000 characters");
+    }
+    phone = phone.trim();
+    if (!/^\+?[1-9]\d{1,14}$/.test(phone)) {
+        throw new ApiError(400, "Invalid phone number format");
+    }
 
-     // Optionally, you can send an email notification here
+    
+
+    // check if emailer has already contacted for the same subject
+    const existingContact = await ContactModel.find({ email, subject });
+
+    if (existingContact.length > 0) {
+        throw new ApiError(400, "You have already contacted us about this subject");
+    }
+
     await sendEmail({
         to: email,
         subject: "Contact Form Submission",
@@ -32,18 +48,12 @@ const postContact = asyncHandler(async (req, res) => {
     });
 
 
-    // check if emailer has already contacted for the same subject
-    const existingContact = await ContactModel.find({ email, subject });
-
-    if (existingContact.length > 0) {
-        throw new ApiError(400, "You have already contacted us about this subject");
-    }   
-
     const contact = await ContactModel.create({
         name,
         email,
         subject,
         message,
+        phone
     });
     if (!contact) {
         throw new ApiError(500, "Failed to create contact");

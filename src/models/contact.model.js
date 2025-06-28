@@ -20,6 +20,17 @@ const contactSchema = new mongoose.Schema({
             message: props => `${props.value} is not a valid email!`
         }
     },
+    phone:{
+        type: String,
+        required: true,
+        trim: true,
+        validate: {
+            validator: function (v) {
+                return /^\+?[1-9]\d{1,14}$/.test(v);
+            },
+            message: props => `${props.value} is not a valid phone number!`
+        }
+    },
     subject: {
         type: String,
         required: true,
