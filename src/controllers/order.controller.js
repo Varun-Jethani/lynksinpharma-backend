@@ -104,9 +104,25 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200,"Order status updated successfully", order));
 });
 
+const updateOrderTrackingURL = asyncHandler(async (req, res) => {
+    const { orderId, trackingURL } = req.body;
+    if (!orderId || !trackingURL) {
+        throw new ApiError(400, "Order ID and tracking URL are required");
+    }
+    const order = await OrderModel.findById(orderId);
+    if (!order) {
+        throw new ApiError(404, "Order not found");
+    }
+    order.trackingURL = trackingURL;
+    await order.save();
+    res.status(200).json(new ApiResponse(200, "Order tracking URL updated successfully", order));
+});
+
+
 export {
     createOrder,
     getUserOrders,
     getAllOrders,
-    updateOrderStatus
+    updateOrderStatus,
+    updateOrderTrackingURL
 };

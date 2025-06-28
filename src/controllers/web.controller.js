@@ -1,7 +1,8 @@
 import WhatWeDoModel from "../models/whatwedo.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/apiresponse.js";
-import asyncHandler from "express-async-handler";
+import asyncHandler from "../utils/asynchandler.js";
+
 import productModel from "../models/product.model.js";
 import OrderModel from "../models/order.model.js";
 import userModel from "../models/user.model.js";
@@ -79,3 +80,11 @@ const getStats = asyncHandler(async (req, res) => {
         totalContacts
     }));
 });
+
+export {
+    getWhatWeDo,
+    postWhatWeDo,
+    updateWhatWeDo,
+    deleteWhatWeDo,
+    getStats
+};

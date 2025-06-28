@@ -4,7 +4,8 @@ import {
         createOrder,
         getUserOrders,
         getAllOrders,
-        updateOrderStatus
+        updateOrderStatus,
+        updateOrderTrackingURL
 } from "../controllers/order.controller.js";
 import { verifyJWT } from "../middlewares/userAuth.middleware.js";
 import { verifyAdminJWT } from "../middlewares/adminAuth.middleware.js";
@@ -22,5 +23,8 @@ orderRouter.route("/user")
     
 orderRouter.route("/update-status")
     .post(verifyAdminJWT, updateOrderStatus);
+
+orderRouter.route("/update-tracking")
+    .post(verifyAdminJWT, updateOrderTrackingURL);
 
 export default orderRouter;

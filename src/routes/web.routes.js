@@ -20,3 +20,5 @@ webRouter.route("/whatwedo/:id")
 
 webRouter.route("/stats")
     .get(verifyAdminJWT,getStats);
+
+export default webRouter;

@@ -69,6 +69,16 @@ const orderSchema = new mongoose.Schema(
                 }
             }
         ],
+        trackingURL: {
+            type: String,
+            trim: true,
+            validate: {
+                validator: function (v) {
+                    return /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?$/.test(v);
+                },
+                message: props => `${props.value} is not a valid URL!`
+            }
+        },
         status: {
             type: String,
             enum: ["pending","accepted", "shipped", "delivered"],
