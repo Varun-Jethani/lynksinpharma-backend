@@ -35,6 +35,12 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    searchHistory:[{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true
+    }
+  ],
     cart:[
       {
         product: {

@@ -420,7 +420,77 @@ const getCart = asyncHandler(async (req, res) => {
 }
 );
 
+const addSearchHistory = asyncHandler(async (req, res) => {
+  const { Productid } = req.body;
+  if (!Productid) {
+    return res.status(400).json({
+      success: false,
+      message: "Please provide a product ID",
+    });
+  }
 
+  const user = req.user; // Assuming user is set in the request by authentication middleware
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: "User not authenticated",
+    });
+  }
+
+  // Limit search history to 5 items
+  const userDoc = await userModel.findById(user.id);
+  if (!userDoc) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+  if (userDoc.searchHistory.length >= 5) {
+    // Remove the oldest search term if limit is reached
+    userDoc.searchHistory.shift();
+  }
+  userDoc.searchHistory.push(Productid); // Add new search term
+  await userDoc.save();
+  const updatedUser = await userModel.findById(user.id).select("-password");
+
+
+  if (!updatedUser) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Search history updated successfully",
+    data: updatedUser.searchHistory,
+  });
+}
+);
+
+
+const getSearchHistory = asyncHandler(async (req, res) => {
+  const user = req.user; // Assuming user is set in the request by authentication middleware
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: "User not authenticated",
+    });
+  }
+  const searchHistory = await userModel.findById(user.id).select("searchHistory -_id");
+  if (!searchHistory) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+  res.status(200).json({
+    success: true,
+    message: "Search history retrieved successfully",
+    data: searchHistory,
+  });
+});
 
 export { 
   logoutUser, 
@@ -433,5 +503,7 @@ export {
   addproducttoCart,
   removeproductfromCart,
   updateproductQuantityInCart,
-  getCart
+  getCart,
+  addSearchHistory,
+  getSearchHistory
 };

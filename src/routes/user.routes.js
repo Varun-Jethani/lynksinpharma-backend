@@ -13,7 +13,9 @@ import {
   addproducttoCart,
   removeproductfromCart,
   updateproductQuantityInCart,
-  getCart
+  getCart,
+  addSearchHistory,
+  getSearchHistory
 } from "../controllers/user.controller.js";
 
 const userRouter = Router();
@@ -29,5 +31,7 @@ userRouter.route("/cart/remove/:id").delete(verifyJWT, removeproductfromCart);
 userRouter.route("/cart/add").post(verifyJWT, addproducttoCart);
 
 userRouter.route("/cart/update").post(verifyJWT, updateproductQuantityInCart);
+userRouter.route("/search/history").post(verifyJWT, addSearchHistory);
+userRouter.route("/search/history").get(verifyJWT, getSearchHistory);
 
 export default userRouter;
