@@ -484,6 +484,10 @@ const getSearchHistory = asyncHandler(async (req, res) => {
     });
   }
   const searchHistory = await userModel.findById(user.id).select("searchHistory -_id");
+  await searchHistory.populate({
+    path: "searchHistory",
+    select: "ChemicalName CASNumber Image MolecularWeight CatelogNumber inStock",
+  });
   if (!searchHistory) {
     return res.status(404).json({
       success: false,
