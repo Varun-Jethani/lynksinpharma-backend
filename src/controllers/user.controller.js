@@ -449,6 +449,11 @@ const addSearchHistory = asyncHandler(async (req, res) => {
     // Remove the oldest search term if limit is reached
     userDoc.searchHistory.shift();
   }
+  // Check if the product ID already exists in search history
+  if (userDoc.searchHistory.map(id => id.toString()).includes(Productid.toString())) {
+    // If it exists, remove it to add it at the end
+    userDoc.searchHistory = userDoc.searchHistory.filter(id => id.toString() !== Productid.toString());
+  }
   userDoc.searchHistory.push(Productid); // Add new search term
   await userDoc.save();
   const updatedUser = await userModel.findById(user.id).select("-password");
