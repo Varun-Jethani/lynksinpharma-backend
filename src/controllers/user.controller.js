@@ -501,6 +501,33 @@ const getSearchHistory = asyncHandler(async (req, res) => {
   });
 });
 
+const clearSearchHistory = asyncHandler(async (req, res) => {
+  const user = req.user; // Assuming user is set in the request by authentication middleware
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: "User not authenticated",
+    });
+  }
+  const updatedUser = await userModel.findByIdAndUpdate(
+    user.id,
+    { searchHistory: [] },
+    { new: true }
+  ).select("-password");
+  if (!updatedUser) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+  return res.status(200).json({
+    success: true,
+    message: "Search history cleared successfully",
+    data: updatedUser.searchHistory,
+  });
+}
+);
+
 export { 
   logoutUser, 
   loginUser, 
@@ -514,5 +541,6 @@ export {
   updateproductQuantityInCart,
   getCart,
   addSearchHistory,
-  getSearchHistory
+  getSearchHistory,
+  clearSearchHistory
 };

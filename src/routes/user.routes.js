@@ -15,7 +15,8 @@ import {
   updateproductQuantityInCart,
   getCart,
   addSearchHistory,
-  getSearchHistory
+  getSearchHistory,
+  clearSearchHistory
 } from "../controllers/user.controller.js";
 
 const userRouter = Router();
@@ -33,5 +34,6 @@ userRouter.route("/cart/add").post(verifyJWT, addproducttoCart);
 userRouter.route("/cart/update").post(verifyJWT, updateproductQuantityInCart);
 userRouter.route("/search/history").post(verifyJWT, addSearchHistory);
 userRouter.route("/search/history").get(verifyJWT, getSearchHistory);
+userRouter.route("/search/history/clear").delete(verifyJWT, clearSearchHistory);
 
 export default userRouter;
