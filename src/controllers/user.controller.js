@@ -564,7 +564,7 @@ const googleLogin = asyncHandler(async (req, res) => {
         isVerified: true, // Automatically verify Google users
       });
     }
-    else if (user && user.isGoogleUser === false) {
+    else if (user[0] && user[0].isGoogleUser === false) {
       return res.status(400).json({
         success: false,
         message: "Email is already registered with a non-Google account",
