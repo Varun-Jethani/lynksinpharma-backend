@@ -16,13 +16,16 @@ import {
   getCart,
   addSearchHistory,
   getSearchHistory,
-  clearSearchHistory
+  clearSearchHistory,
+  googleLogin,
 } from "../controllers/user.controller.js";
 
 const userRouter = Router();
 userRouter.route("/register").post(registerUser);
 userRouter.route("/login").post(loginUser);
 userRouter.route("/logout").post(logoutUser);
+userRouter.route("/validateToken").get(verifyJWT, validateToken);
+userRouter.route("/auth/google").get(googleLogin);
 
 userRouter.route("/profile").get(verifyJWT, userProfile);
 userRouter.route("/verifyOTP").post(verifyEmailOTP);

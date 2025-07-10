@@ -15,11 +15,9 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
     },
     phone: {
       type: String,
-      required: true,
       unique: true,
       validate: {
         validator: function (v) {
@@ -54,9 +52,14 @@ const userSchema = new mongoose.Schema(
           min: 1
         }
       }
-    ]
+    ],
+    isGoogleUser: {
+    type: Boolean,
+    default: false
+  },
 
   },
+  
   { timestamps: true }
 );
 const userModel = mongoose.model("User", userSchema);

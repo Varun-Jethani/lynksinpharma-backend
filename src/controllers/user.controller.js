@@ -5,6 +5,8 @@ import { ApiResponse } from "../utils/apiresponse.js";
 import userModel from "../models/user.model.js";
 import sendEmail from "../utils/Emailer.js";
 import UserOTPSchema from "../models/userOTP.model.js";
+import { oauth2Client } from "../utils/googleConfig.js";
+import axios from "axios";
 
 
 // Register User
@@ -175,6 +177,12 @@ const loginUser = asyncHandler(async (req, res) => {
       });
   }
   else if (userDoc) {
+    if (userDoc.isGoogleUser) {
+      return res.status(400).json({
+        success: false,
+        message: "This account is registered using Google. Please login with Google.",
+      });
+    }
     const pass = bcrypt.compareSync(password, userDoc.password);
     if (pass) {
       jwt.sign(
@@ -528,6 +536,70 @@ const clearSearchHistory = asyncHandler(async (req, res) => {
 }
 );
 
+const googleLogin = asyncHandler(async (req, res) => {
+  try{
+    const { code } = req.query;
+    if (!code) {
+      return res.status(400).json({
+        success: false,
+        message: "Google login code is required",
+      });
+    }
+    const googleResponse = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(googleResponse.tokens);
+
+    const UserRes = await axios.get(
+        `https://www.googleapis.com/oauth2/v3/userinfo?alt=json&access_token=${googleResponse.tokens.access_token}`
+    )
+    console.log("Google User Response:", UserRes.data);
+
+    const {email, name} = UserRes.data;
+    console.log("Email:", email, "Name:", name);
+    let user = await userModel.find({ email });
+    if (!user || user.length === 0) {
+      user = await userModel.create({
+        name,
+        email,
+        isGoogleUser: true,
+        isVerified: true, // Automatically verify Google users
+      });
+    }
+    else if (user && user.isGoogleUser === false) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is already registered with a non-Google account",
+      });
+    }
+
+    console.log("User found or created:", user);
+    jwt.sign(
+      { email: user.email, id: user._id, name: user.name },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" },
+      (err, token) => {
+        if (err) throw err;
+        res
+          .cookie("token", token, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === "production", // Set secure to true in production
+            sameSite: "None", // Required for cross-site cookies
+          })
+          .json({ token, user }); // Include token in response
+      }
+    );
+  } catch (error) {
+    console.error("Google login error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Google login failed",
+      error: error.message,
+    });
+  }
+});
+
+
+
+
 export { 
   logoutUser, 
   loginUser, 
@@ -542,5 +614,6 @@ export {
   getCart,
   addSearchHistory,
   getSearchHistory,
-  clearSearchHistory
+  clearSearchHistory,
+  googleLogin
 };
