@@ -572,6 +572,7 @@ const googleLogin = asyncHandler(async (req, res) => {
     }
 
     console.log("User found or created:", user);
+    user = user[0] || user; // Handle case where find returns an array
     jwt.sign(
       { email: user.email, id: user._id, name: user.name },
       process.env.JWT_SECRET,
