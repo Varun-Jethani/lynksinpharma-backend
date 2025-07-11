@@ -551,17 +551,14 @@ const googleLogin = asyncHandler(async (req, res) => {
     const UserRes = await axios.get(
         `https://www.googleapis.com/oauth2/v3/userinfo?alt=json&access_token=${googleResponse.tokens.access_token}`
     )
-    console.log("Google User Response:", UserRes.data);
-
     const {email, name} = UserRes.data;
-    console.log("Email:", email, "Name:", name);
     let user = await userModel.find({ email });
     if (!user || user.length === 0) {
       user = await userModel.create({
         name,
         email,
         isGoogleUser: true,
-        isVerified: true, // Automatically verify Google users
+        verified: true,
       });
     }
     else if (user[0] && user[0].isGoogleUser === false) {
@@ -570,8 +567,6 @@ const googleLogin = asyncHandler(async (req, res) => {
         message: "Email is already registered with a non-Google account",
       });
     }
-
-    console.log("User found or created:", user);
     user = user[0] || user; // Handle case where find returns an array
     jwt.sign(
       { email: user.email, id: user._id, name: user.name },
